@@ -208,7 +208,19 @@ def update_post_partial(post_id:int, post_data : PostUpdate, db:Annotated[Sessio
     db.refresh(post)
     return post
     
+
+
+@app.delete("/api/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(post_id:int, db:Annotated[Session,Depends(get_db)]):
+    result =db.execute(select(models.Post).where(models.Post.id == post_id))
+    post=result.scalar().first()
     
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    db.delete(post)
+    db.commit()
     
 
 
