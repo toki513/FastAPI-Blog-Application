@@ -191,6 +191,10 @@ def update_post_full(post_id:int,post_data:PostCreate, db:Annotated[Session,Depe
     db.refresh(post)
     return post
 
+@app.patch("/api/posts/{post_id}",response_model=PostResponse)
+def update_post_partial(post_id:int, )
+
+
 
 
 
