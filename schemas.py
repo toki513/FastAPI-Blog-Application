@@ -17,6 +17,10 @@ class UserResponse(UserBase):
     image_file:str | None
     image_path:str
 
+class UserUpdate(BaseModel):
+    username:str | None 
+    email:EmailStr | None
+    image_file: str | None
 
 
 class PostBase(BaseModel):
