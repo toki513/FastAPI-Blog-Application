@@ -280,7 +280,7 @@ async def update_user(
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Email already registered",
-            )
+            ) 
 
     if user_update.username is not None:
         user.username = user_update.username
