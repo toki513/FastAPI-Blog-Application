@@ -140,12 +140,48 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
 
     new_user = models.User(
         username=user.username,
-        email=user.email,
+        email=user.email.lower(),
+        password_hash = hash_password(user.password)
     )
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
     return new_user
+
+
+@app.post("/token",response_model=Token)
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db:Annotated[AsyncSession,Depends(get_db)]
+):
+    result = await db.execute(select(models.User).where(func.lower(models.User.email) == form_data.username.lower()))
+    user = result.scalars().all()
+    
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.get("/api/users/{user_id}", response_model=UserResponse)
