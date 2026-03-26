@@ -21,10 +21,16 @@ from schemas import (
     PostResponse,
     PostUpdate,
     UserCreate,
-    UserResponse,
+    UserPublic,
+    UserPrivate,
+    Token,
     UserUpdate,
 )
-
+from datetime import timedelta
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import func
+from auth import create_access_token,hash_password,oauth2_scheme,verify_access_token,verify_password
+from config import settings
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
@@ -108,12 +114,12 @@ async def user_posts_page(
 
 @app.post(
     "/api/users",
-    response_model=UserResponse,
+    response_model=UserPrivate,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(
-        select(models.User).where(models.User.username == user.username),
+        select(models.User).where(func.lower(models.User.username == user.username.lower())),
     )
     existing_user = result.scalars().first()
     if existing_user:
@@ -123,7 +129,7 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
         )
 
     result = await db.execute(
-        select(models.User).where(models.User.email == user.email),
+        select(models.User).where(func.lower(models.User.email == user.email.lower())),
     )
     existing_email = result.scalars().first()
     if existing_email:
