@@ -27,6 +27,7 @@ from schemas import (
     UserUpdate,
 )
 from datetime import timedelta
+from auth import CurrentUser
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import func
 from auth import create_access_token,hash_password,oauth2_scheme,verify_access_token,verify_password
@@ -322,21 +323,12 @@ async def get_posts(db: Annotated[AsyncSession, Depends(get_db)]):
     response_model=PostResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_post(post: PostCreate, db: Annotated[AsyncSession, Depends(get_db)]):
-    result = await db.execute(
-        select(models.User).where(models.User.id == post.user_id),
-    )
-    user = result.scalars().first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-        )
-
+async def create_post(post: PostCreate, current_user:CurrentUser, db: Annotated[AsyncSession, Depends(get_db)]):
+    
     new_post = models.Post(
         title=post.title,
         content=post.content,
-        user_id=post.user_id,
+        user_id=current_user.id,
     )
     db.add(new_post)
     await db.commit()
