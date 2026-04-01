@@ -223,8 +223,14 @@ async def get_user_posts(user_id: int, db: Annotated[AsyncSession, Depends(get_d
 async def update_user(
     user_id: int,
     user_update: UserUpdate,
+    current_user:CurrentUser,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    if user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to update the post"
+        )
     result = await db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
     if not user:
@@ -266,7 +272,15 @@ async def update_user(
 
 
 @app.delete("/api/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
+async def delete_user(user_id: int,current_user:CurrentUser, db: Annotated[AsyncSession, Depends(get_db)]):
+    if user_id != current_user:
+         
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to update the post"
+        )
+        
+        
     result = await db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
     if not user:
