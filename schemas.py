@@ -42,7 +42,7 @@ class PostBase(BaseModel):
     
 
 class PostCreate(PostBase):
-    
+    pass
     
     
 
