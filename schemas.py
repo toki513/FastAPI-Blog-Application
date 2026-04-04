@@ -57,5 +57,5 @@ class PostResponse(PostBase):
     
     id:int
     user_id:int
-    date_posted:datetime
+    dte_posted:datetime
     author:UserPublic
