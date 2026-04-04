@@ -56,6 +56,6 @@ class PostResponse(PostBase):
     model_config=ConfigDict(from_attributes=True)
     
     id:int
-    user_id:int
+    ser_id:int
     date_posted:datetime
     author:UserPublic
