@@ -58,4 +58,4 @@ class PostResponse(PostBase):
     id:int
     user_id:int
     date_posted:datetime
-    author:UsrPublic
+    author:UserPubli
